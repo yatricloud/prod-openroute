@@ -271,7 +271,7 @@ export const getApiBaseUrl = () => {
     console.log('Using direct OpenRouter API (localhost)');
     return 'https://openrouter.ai/api/v1';
   } else {
-    console.log('Using proxy server for OpenRouter API (live domain or forced)');
-    return '/api/openrouter';
+    console.log('Using Netlify functions for OpenRouter API (live domain)');
+    return '/.netlify/functions/openrouter';
   }
 }; 

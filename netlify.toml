@@ -1,0 +1,22 @@
+[build]
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/openrouter/*"
+  to = "/.netlify/functions/openrouter-proxy"
+  status = 200
+
+[[redirects]]
+  from = "/api/openrouter/models"
+  to = "/.netlify/functions/openrouter-models"
+  status = 200
+
+# Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
