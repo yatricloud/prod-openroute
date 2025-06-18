@@ -53,8 +53,7 @@ export async function fetchOpenRouterModels() {
 }
 
 async function fetchAndCacheOpenRouterModels() {
-  const apiBaseUrl = getApiBaseUrl();
-  const res = await fetch(`${apiBaseUrl}/models`);
+  const res = await fetch('https://openrouter.ai/api/v1/models');
   if (!res.ok) throw new Error('Failed to fetch models');
   const data = await res.json();
   const models = (data.data || []).map((model: any) => {
@@ -256,22 +255,4 @@ export function testSmartTokenCalculation() {
     const smartTokens = calculateSmartMaxTokens(model);
     console.log(`${model.value}: ${smartTokens.toLocaleString()} tokens (${model.pricing.prompt === '0' ? 'FREE' : 'PAID'})`);
   });
-}
-
-// Determine API base URL - use proxy for live domains to handle CORS
-export const getApiBaseUrl = () => {
-  const isLocalhost = window.location.hostname === 'localhost' || 
-                     window.location.hostname === '127.0.0.1' ||
-                     window.location.hostname === '';
-  
-  // Force proxy usage for testing (set to true to test proxy on localhost)
-  const forceProxy = false;
-  
-  if (isLocalhost && !forceProxy) {
-    console.log('Using direct OpenRouter API (localhost)');
-    return 'https://openrouter.ai/api/v1';
-  } else {
-    console.log('Using Netlify functions for OpenRouter API (live domain)');
-    return '/.netlify/functions/openrouter';
-  }
-}; 
+} 

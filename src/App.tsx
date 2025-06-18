@@ -8,7 +8,7 @@ import { ApiSetupPage } from './components/ApiSetupPage';
 import { ThemeToggle } from './components/ThemeToggle';
 import { SettingsModal } from './components/SettingsModal';
 import { ProfileModal } from './components/ProfileModal';
-import { getOpenRouteHeaders, fetchOpenRouterModels, calculateSmartMaxTokens, testSmartTokenCalculation, getApiBaseUrl } from './utils/api';
+import { getOpenRouteHeaders, fetchOpenRouterModels, calculateSmartMaxTokens, testSmartTokenCalculation } from './utils/api';
 import LoginPage from './components/LoginPage';
 import { supabase } from './utils/supabase';
 
@@ -258,7 +258,7 @@ function App() {
         headers: { ...headers, 'Authorization': 'Bearer ***' } // Hide API key in logs
       });
 
-      const response = await fetch(`${getApiBaseUrl()}/chat/completions`, {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers,
         body: JSON.stringify({
