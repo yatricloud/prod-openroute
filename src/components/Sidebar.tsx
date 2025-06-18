@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, MessageSquare, Github, Trash2, History, Settings } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, History, ChevronLeft, Bot } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 interface SidebarProps {
@@ -9,7 +9,8 @@ interface SidebarProps {
   onSelectChat: (id: string) => void;
   onDeleteChat: (id: string) => void;
   onClearHistory: () => void;
-  onSettings: () => void;
+  onHideSidebar: () => void;
+  currentModel?: string;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -19,17 +20,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectChat,
   onDeleteChat,
   onClearHistory,
-  onSettings,
+  onHideSidebar,
+  currentModel,
 }) => {
   return (
     <div className="h-full bg-sidebar border-r border-border flex flex-col">
-      <button
-        onClick={onNewChat}
-        className="m-4 p-2 flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors"
-      >
-        <Plus className="w-4 h-4" />
-        New chat
-      </button>
+      <div className="m-4 flex gap-2">
+        <button
+          onClick={onNewChat}
+          className="flex-1 p-2 flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          New chat
+        </button>
+        <button
+          onClick={onHideSidebar}
+          className="p-2 flex items-center justify-center bg-secondary hover:bg-secondary/80 text-foreground rounded-lg transition-colors md:flex hidden"
+          aria-label="Hide sidebar"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      </div>
 
       <div className="flex-1 overflow-y-auto">
         {conversations.map((chat) => (
@@ -60,28 +71,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="p-4 border-t border-border flex flex-col gap-2">
         <button
-          onClick={onSettings}
-          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors"
-        >
-          <Settings className="w-4 h-4" />
-          <span>Settings</span>
-        </button>
-        <button
           onClick={onClearHistory}
           className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-red-400 hover:text-red-500"
         >
           <History className="w-4 h-4" />
           <span>Clear History</span>
         </button>
-        <a
-          href="https://github.com/yatricloud/DeepSeek-R1-To-Chat-App/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors"
+        <button
+          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-foreground/70"
         >
-          <Github className="w-4 h-4" />
-          <span>Contribute on GitHub</span>
-        </a>
+          <Bot className="w-4 h-4" />
+          <span className="text-sm">
+            {currentModel ? currentModel : 'No Model Connected'}
+          </span>
+        </button>
       </div>
     </div>
   );

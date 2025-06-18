@@ -4,17 +4,33 @@ Chat Yatri is an advanced AI-powered chat interface developed by Yatri Cloud. It
 
 ## Features
 
-- **Natural Conversations**: Engage in fluid, context-aware conversations with advanced AI.
-- **Lightning Fast**: Get instant responses powered by cutting-edge technology.
-- **Secure & Private**: Your conversations are protected with enterprise-grade security.
-- **OpenRoute Integration**: Connect to multiple AI models through OpenRouter's unified API.
+- **Professional Workflow**: Dedicated API setup page for seamless onboarding
+- **Natural Conversations**: Engage in fluid, context-aware conversations with advanced AI
+- **Lightning Fast**: Get instant responses powered by cutting-edge technology
+- **Secure & Private**: Your conversations are protected with enterprise-grade security
+- **OpenRoute Integration**: Connect to multiple AI models through OpenRouter's unified API
+
+## User Experience
+
+### First-Time Setup
+1. **Welcome Page**: Users are greeted with a professional API setup interface
+2. **Step-by-Step Guide**: Clear instructions for getting started with OpenRouter
+3. **Model Selection**: Browse and filter hundreds of AI models by category
+4. **Smart Configuration**: Intelligent defaults for optimal performance
+
+### Chat Interface
+1. **Clean Design**: Modern, distraction-free chat environment
+2. **Conversation Management**: Organize and manage multiple conversations
+3. **Real-time Streaming**: See AI responses as they're generated
+4. **Settings Access**: Easy access to API configuration and preferences
 
 ## Benefits
 
-- **User-Friendly Interface**: Easy to use and navigate.
-- **High Availability**: Always available to assist you.
-- **Customizable**: Tailor the chat experience to your needs.
-- **Multi-Model Support**: Access to various AI models including Google Gemini, OpenAI GPT, Anthropic Claude, and more.
+- **User-Friendly Interface**: Intuitive design with clear navigation
+- **High Availability**: Always available to assist you
+- **Customizable**: Tailor the chat experience to your needs
+- **Multi-Model Support**: Access to various AI models including Google Gemini, OpenAI GPT, Anthropic Claude, and more
+- **Professional Onboarding**: Smooth setup process for new users
 
 ## OpenRoute API Integration
 

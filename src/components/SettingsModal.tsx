@@ -8,13 +8,17 @@ interface SettingsModalProps {
   onClose: () => void;
   onSave: (config: OpenRouteConfig) => void;
   currentConfig?: OpenRouteConfig;
+  modelConfigs?: Record<string, OpenRouteConfig>;
+  onSwitchModel?: (config: OpenRouteConfig) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ 
   isOpen, 
   onClose, 
   onSave, 
-  currentConfig 
+  currentConfig, 
+  modelConfigs, 
+  onSwitchModel 
 }) => {
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('');
@@ -118,6 +122,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {modelsError && (
             <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-700 text-sm">
               {modelsError}
+            </div>
+          )}
+          
+          {/* Configured Models Section */}
+          {modelConfigs && Object.keys(modelConfigs).length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-3">Configured Models</h3>
+              <div className="space-y-2">
+                {Object.entries(modelConfigs).map(([modelId, config]) => {
+                  const isCurrent = currentConfig?.model === modelId;
+                  return (
+                    <div
+                      key={modelId}
+                      className={`p-3 border rounded-lg flex items-center justify-between ${
+                        isCurrent ? 'border-primary bg-primary/5' : 'border-border hover:bg-secondary'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${isCurrent ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                        <div>
+                          <div className="font-medium text-sm">{modelId}</div>
+                          <div className="text-xs text-foreground/60">
+                            {isCurrent ? 'Currently Connected' : 'Configured'}
+                          </div>
+                        </div>
+                      </div>
+                      {!isCurrent && onSwitchModel && (
+                        <button
+                          onClick={() => onSwitchModel(config)}
+                          className="px-3 py-1 text-xs bg-primary text-white rounded hover:bg-primary-hover transition-colors"
+                        >
+                          Switch
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
           
