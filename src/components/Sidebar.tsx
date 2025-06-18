@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, MessageSquare, Trash2, History, ChevronLeft, Bot } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, History, ChevronLeft, Bot, Eye, User, LogOut } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 interface SidebarProps {
@@ -11,6 +11,9 @@ interface SidebarProps {
   onClearHistory: () => void;
   onHideSidebar: () => void;
   currentModel?: string;
+  onViewModelDetails?: () => void;
+  onShowProfile?: () => void;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,6 +25,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClearHistory,
   onHideSidebar,
   currentModel,
+  onViewModelDetails,
+  onShowProfile,
+  onLogout,
 }) => {
   return (
     <div className="h-full bg-sidebar border-r border-border flex flex-col">
@@ -70,20 +76,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="p-4 border-t border-border flex flex-col gap-2">
+        {/* Profile at the top */}
+        {onShowProfile && (
+          <button
+            onClick={onShowProfile}
+            className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-foreground/70 hover:text-foreground"
+          >
+            <User className="w-4 h-4" />
+            <span className="text-sm">Profile</span>
+          </button>
+        )}
+        {/* Model section */}
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex-1 p-2 flex items-center gap-2 text-foreground/70">
+            <Bot className="w-4 h-4" />
+            <span className="text-sm">
+              {currentModel ? currentModel : 'No Model Connected'}
+            </span>
+          </div>
+          {currentModel && onViewModelDetails && (
+            <button
+              onClick={onViewModelDetails}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors text-foreground/60 hover:text-foreground"
+              aria-label="View model details"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        {/* Clear History at the bottom */}
         <button
           onClick={onClearHistory}
-          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-red-400 hover:text-red-500"
+          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-red-400 hover:text-red-500 mt-1"
         >
           <History className="w-4 h-4" />
           <span>Clear History</span>
-        </button>
-        <button
-          className="w-full p-2 flex items-center gap-2 hover:bg-secondary rounded-lg transition-colors text-foreground/70"
-        >
-          <Bot className="w-4 h-4" />
-          <span className="text-sm">
-            {currentModel ? currentModel : 'No Model Connected'}
-          </span>
         </button>
       </div>
     </div>

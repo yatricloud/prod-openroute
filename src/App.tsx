@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, Send, Square, Settings, Bot, Plus, X, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Send, Square, Settings, Bot, Plus, X, MessageSquare, LogOut, User } from 'lucide-react';
 import { ChatMessage } from './components/ChatMessage';
 import { Sidebar } from './components/Sidebar';
 import { Message, ChatState, OpenRouteConfig } from './types';
@@ -7,7 +7,10 @@ import { HomeContent } from './components/HomeContent';
 import { ApiSetupPage } from './components/ApiSetupPage';
 import { ThemeToggle } from './components/ThemeToggle';
 import { SettingsModal } from './components/SettingsModal';
+import { ProfileModal } from './components/ProfileModal';
 import { getOpenRouteHeaders, fetchOpenRouterModels, calculateSmartMaxTokens, testSmartTokenCalculation } from './utils/api';
+import LoginPage from './components/LoginPage';
+import { supabase } from './utils/supabase';
 
 interface ConversationData {
   id: string;
@@ -46,9 +49,12 @@ function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showModelDetails, setShowModelDetails] = useState(false);
   const [selectedModelForDetails, setSelectedModelForDetails] = useState<OpenRouteConfig | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const modelDropdownRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Set initial view based on configuration
   useEffect(() => {
@@ -105,10 +111,10 @@ function App() {
 
   const handleConfigureOpenRoute = (config: OpenRouteConfig) => {
     setOpenRouteConfig(config);
-    const modelName = getModelDisplayName();
+    setCurrentView('chat');
+    setModelConfigs(prev => ({ ...prev, [config.model]: config }));
+    const modelName = models.find(m => m.value === config.model)?.label || config.model;
     showToast(`✅ Connected to ${modelName}`);
-    setSelectedModelForDetails(config);
-    setShowModelDetails(true);
   };
 
   const handleBackToSetup = () => {
@@ -459,6 +465,37 @@ function App() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    showToast('Logged out successfully');
+  };
+
+  useEffect(() => {
+    // Check for existing session
+    const session = supabase.auth.getSession();
+    session.then(({ data }) => {
+      if (data.session?.user) {
+        setUser(data.session.user);
+      }
+      setAuthLoading(false);
+    });
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (authLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+  if (!user) {
+    return <LoginPage onLogin={setUser} />;
+  }
+
   return (
     <>
       {currentView === 'setup' ? (
@@ -485,6 +522,14 @@ function App() {
               onClearHistory={handleClearHistory}
               onHideSidebar={() => setSidebarOpen(false)}
               currentModel={openRouteConfig ? getModelDisplayName() : undefined}
+              onViewModelDetails={() => {
+                if (openRouteConfig) {
+                  setSelectedModelForDetails(openRouteConfig);
+                  setShowModelDetails(true);
+                }
+              }}
+              onShowProfile={() => setShowProfile(true)}
+              onLogout={handleLogout}
             />
           </div>
 
@@ -679,29 +724,15 @@ function App() {
                                         setOpenRouteConfig(config);
                                         const modelName = models.find(m => m.value === modelId)?.label || modelId;
                                         showToast(`🔄 Switched to ${modelName}`);
-                                        setSelectedModelForDetails(config);
-                                        setShowModelDetails(true);
                                       }}
-                                      className="text-xs text-primary hover:text-primary-hover px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+                                      className="text-xs text-primary hover:text-white hover:bg-primary px-2 py-1 rounded transition-colors"
                                     >
-                                      Connect
+                                      Switch
                                     </button>
                                   </div>
                                 </div>
                               );
                             })}
-                        </div>
-                        <div className="p-3 border-t border-border">
-                          <button
-                            onClick={() => {
-                              setShowModelDropdown(false);
-                              handleBackToSetup();
-                            }}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-primary hover:bg-primary/10 rounded transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Add New Model
-                          </button>
                         </div>
                       </div>
                     )}
@@ -756,23 +787,6 @@ function App() {
                 </p>
               </div>
             </div>
-
-            {/* Settings Modal */}
-            <SettingsModal
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              onSave={handleConfigSave}
-              currentConfig={openRouteConfig || undefined}
-              modelConfigs={modelConfigs}
-              onSwitchModel={(config) => {
-                setOpenRouteConfig(config);
-                setShowSettings(false);
-                const modelName = getModelDisplayName();
-                showToast(`🔄 Switched to ${modelName}`);
-                setSelectedModelForDetails(config);
-                setShowModelDetails(true);
-              }}
-            />
           </div>
         </div>
       )}
@@ -783,6 +797,41 @@ function App() {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={showProfile}
+        onClose={() => setShowProfile(false)}
+        user={user}
+        onLogout={handleLogout}
+        onClearHistory={handleClearHistory}
+        onSwitchModel={() => {
+          setShowProfile(false);
+          setShowSettings(true);
+        }}
+        onAddModel={() => {
+          setShowProfile(false);
+          handleBackToSetup();
+        }}
+        conversations={conversations}
+        openRouteConfig={openRouteConfig}
+        modelConfigs={modelConfigs}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onSave={handleConfigSave}
+        currentConfig={openRouteConfig || undefined}
+        modelConfigs={modelConfigs}
+        onSwitchModel={(config) => {
+          setOpenRouteConfig(config);
+          setShowSettings(false);
+          const modelName = getModelDisplayName();
+          showToast(`🔄 Switched to ${modelName}`);
+        }}
+      />
 
       {/* Model Details Modal */}
       {showModelDetails && selectedModelForDetails && (
