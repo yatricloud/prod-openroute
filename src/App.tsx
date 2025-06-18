@@ -8,7 +8,7 @@ import { ApiSetupPage } from './components/ApiSetupPage';
 import { ThemeToggle } from './components/ThemeToggle';
 import { SettingsModal } from './components/SettingsModal';
 import { ProfileModal } from './components/ProfileModal';
-import { getOpenRouteHeaders, fetchOpenRouterModels, calculateSmartMaxTokens, testSmartTokenCalculation } from './utils/api';
+import { getOpenRouteHeaders, fetchOpenRouterModels, calculateSmartMaxTokens, testSmartTokenCalculation, getApiBaseUrl } from './utils/api';
 import LoginPage from './components/LoginPage';
 import { supabase } from './utils/supabase';
 
@@ -258,7 +258,7 @@ function App() {
         headers: { ...headers, 'Authorization': 'Bearer ***' } // Hide API key in logs
       });
 
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch(`${getApiBaseUrl()}/chat/completions`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -505,21 +505,21 @@ function App() {
           isConfigured={!!openRouteConfig}
         />
       ) : (
-        <div className="flex h-screen bg-background relative">
-          {/* Sidebar with overlay for mobile */}
-          <div 
-            className={`fixed md:relative z-50 transition-transform duration-300 ease-in-out ${
+    <div className="flex h-screen bg-background relative">
+      {/* Sidebar with overlay for mobile */}
+      <div 
+        className={`fixed md:relative z-50 transition-transform duration-300 ease-in-out ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:hidden'
-            }`}
-            style={{ width: '16rem' }}
-          >
-            <Sidebar
+        }`}
+        style={{ width: '16rem' }}
+      >
+        <Sidebar
               conversations={conversations}
-              activeConversation={activeConversation}
-              onNewChat={handleNewChat}
-              onSelectChat={setActiveConversation}
-              onDeleteChat={handleDeleteChat}
-              onClearHistory={handleClearHistory}
+          activeConversation={activeConversation}
+          onNewChat={handleNewChat}
+          onSelectChat={setActiveConversation}
+          onDeleteChat={handleDeleteChat}
+          onClearHistory={handleClearHistory}
               onHideSidebar={() => setSidebarOpen(false)}
               currentModel={openRouteConfig ? getModelDisplayName() : undefined}
               onViewModelDetails={() => {
@@ -530,19 +530,19 @@ function App() {
               }}
               onShowProfile={() => setShowProfile(true)}
               onLogout={handleLogout}
-            />
-          </div>
+        />
+      </div>
 
-          {/* Overlay for mobile */}
+      {/* Overlay for mobile */}
           {sidebarOpen && (
-            <div 
-              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
               onClick={() => setSidebarOpen(false)}
-            />
-          )}
+        />
+      )}
 
-          <div className="flex-1 flex flex-col min-w-0 relative">
-            <header className="sticky top-0 z-30 border-b border-border p-4 flex items-center bg-background">
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        <header className="sticky top-0 z-30 border-b border-border p-4 flex items-center bg-background">
               {!sidebarOpen && (
                 <button
                   onClick={() => setSidebarOpen(true)}
@@ -552,86 +552,86 @@ function App() {
                   <ChevronRight className="w-5 h-5 text-foreground" />
                 </button>
               )}
-              <button
+          <button
                 onClick={() => setSidebarOpen(false)}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors md:hidden"
+            className="p-2 hover:bg-secondary rounded-lg transition-colors md:hidden"
                 aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              >
+          >
                 {sidebarOpen ? (
-                  <ChevronLeft className="w-5 h-5 text-foreground" />
-                ) : (
-                  <ChevronRight className="w-5 h-5 text-foreground" />
-                )}
-              </button>
-              <div className="flex items-center gap-2 flex-1 justify-center">
-                <img
-                  src="https://raw.githubusercontent.com/yatricloud/yatri-images/refs/heads/main/Logo/yatricloud-round-transparent.png"
-                  alt="Chat Yatri"
-                  className="w-8 h-8"
-                />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            )}
+          </button>
+          <div className="flex items-center gap-2 flex-1 justify-center">
+            <img
+              src="https://raw.githubusercontent.com/yatricloud/yatri-images/refs/heads/main/Logo/yatricloud-round-transparent.png"
+              alt="Chat Yatri"
+              className="w-8 h-8"
+            />
                 <h1 className="text-xl font-semibold">
                   Chat Yatri
                 </h1>
+          </div>
+          
+          {/* Token Usage Display */}
+          {openRouteConfig && tokenUsage.total > 0 && (
+            <div className="hidden md:flex items-center gap-4 text-xs text-foreground/60">
+              <div className="flex items-center gap-1">
+                <span>Tokens:</span>
+                <span className="font-medium">{tokenUsage.total.toLocaleString()}</span>
               </div>
-              
-              {/* Token Usage Display */}
-              {openRouteConfig && tokenUsage.total > 0 && (
-                <div className="hidden md:flex items-center gap-4 text-xs text-foreground/60">
-                  <div className="flex items-center gap-1">
-                    <span>Tokens:</span>
-                    <span className="font-medium">{tokenUsage.total.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span>Cost:</span>
-                    <span className="font-medium">${getEstimatedCost().toFixed(6)}</span>
-                  </div>
-                </div>
-              )}
-              
-              <div className="ml-2 flex items-center gap-2">
-                <ThemeToggle theme={theme} onToggle={toggleTheme} />
+              <div className="flex items-center gap-1">
+                <span>Cost:</span>
+                <span className="font-medium">${getEstimatedCost().toFixed(6)}</span>
               </div>
-            </header>
-
-            {/* Settings Message */}
-            {showSettingsMessage && (
-              <div className="fixed top-20 right-4 z-40 bg-primary text-white px-3 py-2 rounded-lg text-sm shadow-lg">
-                Settings opened (Ctrl/Cmd + ,)
-              </div>
-            )}
-
-            <div 
-              ref={messagesContainerRef}
-              onScroll={handleScroll}
-              className="flex-1 overflow-y-auto"
-            >
-              {getCurrentMessages().length === 0 ? (
-                <HomeContent />
-              ) : (
-                <div className="divide-y divide-border">
-                  {getCurrentMessages().map((message) => (
-                    <ChatMessage key={message.id} message={message} />
-                  ))}
-                </div>
-              )}
-              <div ref={messagesEndRef} />
             </div>
+          )}
+          
+          <div className="ml-2 flex items-center gap-2">
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
+        </header>
 
-            {showScrollButton && (
-              <button
-                onClick={scrollToBottom}
-                className="fixed bottom-24 right-4 p-2 bg-primary text-white rounded-full shadow-lg hover:bg-primary-hover transition-colors z-20"
-                aria-label="Scroll to bottom"
-              >
-                <ChevronDown className="w-5 h-5" />
-              </button>
-            )}
+        {/* Settings Message */}
+        {showSettingsMessage && (
+          <div className="fixed top-20 right-4 z-40 bg-primary text-white px-3 py-2 rounded-lg text-sm shadow-lg">
+            Settings opened (Ctrl/Cmd + ,)
+          </div>
+        )}
 
-            <form 
-              onSubmit={handleSubmit} 
-              className="sticky bottom-0 border-t border-border p-4 bg-background z-30"
-            >
-              <div className="flex gap-4 max-w-4xl mx-auto">
+        <div 
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto"
+        >
+          {getCurrentMessages().length === 0 ? (
+                <HomeContent />
+          ) : (
+            <div className="divide-y divide-border">
+              {getCurrentMessages().map((message) => (
+                <ChatMessage key={message.id} message={message} />
+              ))}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="fixed bottom-24 right-4 p-2 bg-primary text-white rounded-full shadow-lg hover:bg-primary-hover transition-colors z-20"
+            aria-label="Scroll to bottom"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </button>
+        )}
+
+        <form 
+          onSubmit={handleSubmit} 
+          className="sticky bottom-0 border-t border-border p-4 bg-background z-30"
+        >
+          <div className="flex gap-4 max-w-4xl mx-auto">
                 {/* Model Selection Icon */}
                 {openRouteConfig?.model && (
                   <div className="relative" ref={modelDropdownRef}>
@@ -739,28 +739,28 @@ function App() {
                   </div>
                 )}
                 
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={openRouteConfig ? "Type your message..." : "Configure OpenRoute API to start chatting..."}
-                  className="flex-1 p-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder-foreground/60"
-                  disabled={isLoading || !openRouteConfig}
-                />
-                <button
-                  type={isLoading ? 'button' : 'submit'}
-                  onClick={isLoading ? handleStopGeneration : undefined}
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-secondary disabled:text-foreground/60 disabled:cursor-not-allowed transition-colors"
-                  disabled={!openRouteConfig}
-                >
-                  {isLoading ? (
-                    <Square className="w-5 h-5" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </form>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={openRouteConfig ? "Type your message..." : "Configure OpenRoute API to start chatting..."}
+              className="flex-1 p-2 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder-foreground/60"
+              disabled={isLoading || !openRouteConfig}
+            />
+            <button
+              type={isLoading ? 'button' : 'submit'}
+              onClick={isLoading ? handleStopGeneration : undefined}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-secondary disabled:text-foreground/60 disabled:cursor-not-allowed transition-colors"
+              disabled={!openRouteConfig}
+            >
+              {isLoading ? (
+                <Square className="w-5 h-5" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </form>
 
             {/* Copyright Footer */}
             <div className="border-t border-border p-3 bg-background">
@@ -818,12 +818,12 @@ function App() {
         modelConfigs={modelConfigs}
       />
 
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
         onSave={handleConfigSave}
-        currentConfig={openRouteConfig || undefined}
+          currentConfig={openRouteConfig || undefined}
         modelConfigs={modelConfigs}
         onSwitchModel={(config) => {
           setOpenRouteConfig(config);
@@ -987,8 +987,8 @@ function App() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+      </div>
+    </div>
       )}
     </>
   );

@@ -238,3 +238,79 @@ The application now includes intelligent token management based on model charact
     
 * **WhatsApp Channel:** [**Follow Now**](https://whatsapp.com/channel/0029VakdAHIFHWq60yHA1Q0s)
 
+## CORS Issue with MiniMax Models
+
+**Problem**: MiniMax models (like "MiniMax M1") may not work on live domains due to CORS restrictions, while working fine locally.
+
+**Solution**: The app includes a proxy server that handles CORS issues for live deployments.
+
+### Deployment Steps
+
+1. **Start the proxy server** (required for live domains):
+   ```bash
+   cd server
+   npm install
+   npm start
+   ```
+
+2. **Build and deploy the frontend**:
+   ```bash
+   npm run build
+   # Deploy the dist folder to your hosting service
+   ```
+
+3. **Configure your hosting service** to proxy API calls to your server:
+   - All requests to `/api/openrouter/*` should be proxied to your server
+   - Example for Nginx:
+   ```nginx
+   location /api/openrouter/ {
+       proxy_pass http://localhost:3000/api/openrouter/;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+   }
+   ```
+
+### Testing CORS Issues
+
+To test the proxy locally, you can force proxy usage by setting `forceProxy = true` in `src/utils/api.ts`.
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Start proxy server (for testing CORS issues)
+cd server && npm start
+```
+
+## Environment Variables
+
+Create a `.env` file with your Supabase credentials:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## API Configuration
+
+1. Get an API key from [OpenRouter](https://openrouter.ai/)
+2. Configure your preferred models in the settings
+3. Start chatting!
+
+## Supported Models
+
+- GPT-4, GPT-3.5 Turbo
+- Claude 3.5 Sonnet, Claude 3 Haiku
+- Gemini Pro, Gemini Flash
+- Llama 3.1, Mistral
+- And 100+ more models
+
+## License
+
+© 2025 Yatri Cloud. Designed by Uimitra.
+
