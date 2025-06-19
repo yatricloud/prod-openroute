@@ -55,6 +55,7 @@ function App() {
   const modelDropdownRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
 
   // Set initial view based on configuration
   useEffect(() => {
@@ -179,6 +180,7 @@ function App() {
       });
       return newConversations;
     });
+    setIsAwaitingResponse(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -227,6 +229,7 @@ function App() {
     setInput('');
     setIsLoading(true);
     setShouldAutoScroll(true);
+    setIsAwaitingResponse(true);
 
     const controller = new AbortController();
     setAbortController(controller);
@@ -365,6 +368,7 @@ function App() {
       setIsLoading(false);
       setAbortController(null);
     }
+    setIsAwaitingResponse(false);
   };
 
   // Load models on component mount
@@ -615,6 +619,12 @@ function App() {
             </div>
           )}
           <div ref={messagesEndRef} />
+          {isAwaitingResponse && (
+            <div className="flex items-center gap-2 p-4 animate-pulse text-primary">
+              <span>Yatri AI is Thinking</span>
+              <span className="dot-flashing"></span>
+            </div>
+          )}
         </div>
 
         {showScrollButton && (
@@ -793,7 +803,7 @@ function App() {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-[9999] flex items-center gap-2">
           <span>{toastMessage}</span>
         </div>
       )}

@@ -89,3 +89,36 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+.dot-flashing {
+  position: relative;
+  width: 1.5em;
+  height: 1em;
+}
+.dot-flashing:before, .dot-flashing:after, .dot-flashing {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dotFlashing 1s infinite linear alternate;
+}
+.dot-flashing:before {
+  left: 0;
+  animation-delay: 0s;
+}
+.dot-flashing {
+  left: 0.5em;
+  animation-delay: 0.2s;
+}
+.dot-flashing:after {
+  left: 1em;
+  animation-delay: 0.4s;
+}
+@keyframes dotFlashing {
+  0% { opacity: 0.2; }
+  50%, 100% { opacity: 1; }
+}
