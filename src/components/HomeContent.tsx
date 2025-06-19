@@ -13,7 +13,7 @@ export const HomeContent: React.FC = () => {
           />
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary">
-              Hello Yatris👋🏻
+              Hello Yatris👋
             </h1>
           </div>
         </div>
